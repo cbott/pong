@@ -8,14 +8,14 @@ games.init(screen_width = 850, screen_height = 550, fps=45)
 class Thing(games.Sprite):
     """parent class for ball and paddles"""
     def update(self):
-        if self.top>games.screen.height:
-            self.top=games.screen.height
-        if self.bottom<0:
-            self.bottom=0       
+        if self.top<0:
+            self.top=0
+        if self.bottom>games.screen.height:
+            self.bottom=games.screen.height       
 
 class Paddle(Thing):
     """player or computer paddle"""
-    SPEED=1#how fast paddle moves up and down
+    SPEED=2#how fast paddle moves up and down
     
     def move_up(self):
         self.y -= Paddle.SPEED
@@ -56,7 +56,7 @@ class Game(object):
     def __init__(self):
         """initialize game object"""
         #create the player's paddle
-        self.player1 = Player(game = self,x=20)
+        self.player1 = Player(game = self,x=games.screen.width - 20)
         games.screen.add(self.player1)
 
     def play(self):
