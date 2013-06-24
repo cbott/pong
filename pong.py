@@ -1,5 +1,5 @@
 #game of pong
-#first time i'm using git hub
+#first time I'm using git hub
 from livewires import games, color
 import random
 
@@ -11,3 +11,7 @@ class Thing(games.Sprite):
         self.top=games.screen.height
     if self.bottom<0:
         self.bottom=0       
+
+class Player(Thing):
+    """paddle for player 1"""
+    image = games.load_image(
