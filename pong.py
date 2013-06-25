@@ -15,15 +15,16 @@ class Thing(games.Sprite):
 
 class Ball(Thing):
     image = games.load_image("ball.png")
-    SPEED = 3#speed multiplier
+    SPEED = 5#speed multiplier
 
-    def __init__(self, x=games.screen.width/2, y=games.screen.height/2):
+    def __init__(self, game, x=games.screen.width/2, y=games.screen.height/2):
         """create the ball"""
         super(Ball, self).__init__(
             image = Ball.image,
             x=x, y=y,
             dx = random.random() * Ball.SPEED,
             dy=random.random() * Ball.SPEED)
+        self.game = game
 
     def update(self):
         super(Ball, self).update()
@@ -33,6 +34,14 @@ class Ball(Thing):
         if self.bottom>=games.screen.height:
             #hit bottom, reverse y direction
             self.dy = -self.dy
+
+        if self.overlapping_sprites:
+            #change side-to-side direction after contacting a paddle
+            self.dx= -self.dx
+
+        if self.right > games.screen.width:
+            self.game.end(0)
+            
         
         
     
@@ -84,7 +93,7 @@ class Game(object):
         games.screen.add(self.player1)
 
         #create the ball
-        self.ball = Ball()
+        self.ball = Ball(game=self)
         games.screen.add(self.ball)
 
     def play(self):
@@ -99,6 +108,19 @@ class Game(object):
 
         #begin
         games.screen.mainloop()
+
+    def end(winner):
+        #0=computer
+        #1=player 1
+        #2=player 2
+        if winner == 0:
+            name = "computer"
+        elif winner == 1:
+            name = "Player 1"
+        elif winner == 2:
+            name = "Player 2"
+        
+        
 
 def main():
     pong=Game()
