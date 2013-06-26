@@ -17,7 +17,7 @@ class Ball(Thing):
     image = games.load_image("ball.png")
     SPEED = 4#speed multiplier
 
-    acceleration = 0.3 #how quickly ball speed increases
+    acceleration = 0.5#how quickly ball speed increases
 
     def __init__(self, game, x=games.screen.width/2, y=games.screen.height/2):
         """create the ball"""
@@ -60,7 +60,7 @@ class Ball(Thing):
 
 class Paddle(Thing):
     """player or computer paddle"""
-    SPEED=2#how fast paddle moves up and down
+    SPEED=3#how fast paddle moves up and down
     
     def move_up(self):
         self.y -= Paddle.SPEED
@@ -85,10 +85,22 @@ class Player(Paddle):
 
         super(Player, self).update()
 
-        if games.keyboard.is_pressed(games.K_UP):
-            self.move_up()
-        if games.keyboard.is_pressed(games.K_DOWN):
-            self.move_down()
+        #keyboard control
+        if control == "k":
+            if games.keyboard.is_pressed(games.K_UP):
+                self.move_up()
+            if games.keyboard.is_pressed(games.K_DOWN):
+                self.move_down()
+    
+
+
+        #mouse control
+        else:
+            if games.mouse.y > self.y:
+                self.move_down()
+            elif games.mouse.y < self.y:
+                self.move_up()
+        
     
 
 class Computer(Paddle):
@@ -115,12 +127,84 @@ class Computer(Paddle):
                 self.move_up()
     
 
+class Button(games.Sprite):
+    """a pressable button"""
+
+    def update(self):
+        mouse_x = games.mouse.x
+        mouse_y = games.mouse.y
+
+        if mouse_x < self.right and mouse_x > self.left and mouse_y < self.bottom and mouse_y > self.top:
+            #mouse is hovering over button
+            self.image = self.pressed_img
+            if games.mouse.is_pressed(0):
+                #button has been left-clicked
+                self.click()
+        else:
+            self.image = self.unpressed_img
+
+class K_Board_Button(Button):
+    """button clicked to use keyboard controls"""
+    unpressed_img = games.load_image("k_bttn_unpressed.png")
+    pressed_img = games.load_image("k_bttn_pressed.png")
+        
+    def __init__(self, game, x=0.25 * games.screen.width, y=games.screen.height/2):
+        super(K_Board_Button, self).__init__(image = K_Board_Button.unpressed_img,
+                                             x=x, y=y)
+        self.game = game
+
+    def update(self):
+        super(K_Board_Button, self).update()
+
+    def click(self):
+        self.game.start("kb")
+
+class Mouse_Button(Button):
+    """button clicked to use mouse controls"""
+    unpressed_img = games.load_image("m_bttn_unpressed.png")
+    pressed_img = games.load_image("m_bttn_pressed.png")
+        
+    def __init__(self, game, x=0.75 * games.screen.width, y=games.screen.height/2):
+        super(Mouse_Button, self).__init__(image = Mouse_Button.unpressed_img,
+                                             x=x, y=y)
+        self.game = game
+
+    def update(self):
+        super(Mouse_Button, self).update()
+
+    def click(self):
+        self.game.start("m")    
+
 
 class Game(object):
     """the game"""
 
     def __init__(self):
         """initialize game object"""
+        #get control type
+        self.k_button = K_Board_Button(game = self)
+        games.screen.add(self.k_button)
+
+        self.m_button = Mouse_Button(game = self)
+        games.screen.add(self.m_button)
+
+        games.screen.mainloop()
+
+    def start(self, control_type):
+        global control
+        
+        if control_type == "kb":
+            control = "k"
+        else:
+            control = "m"
+            
+        self.k_button.destroy()
+        self.m_button.destroy()
+
+        self.play()
+
+    def play(self):
+        """play the game"""
         #create the player's paddle
         self.player1 = Player(game = self,x=games.screen.width - 20)
         games.screen.add(self.player1)
@@ -133,8 +217,7 @@ class Game(object):
         self.ball = Ball(game=self)
         games.screen.add(self.ball)
 
-    def play(self):
-        """play the game"""
+        
         #background music
         games.music.load("theme_music.mid")
         games.music.play(-1)
@@ -144,7 +227,9 @@ class Game(object):
         games.screen.background = background_image
 
         #begin
-        games.screen.mainloop()
+        games.screen.event_grab = False
+        
+
 
     def end(self, winner):
         #0=computer
