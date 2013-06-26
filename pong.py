@@ -41,6 +41,9 @@ class Ball(Thing):
 
         if self.right > games.screen.width:
             self.game.end(0)
+
+        elif self.left < 0:
+            self.game.end(1)
             
         
         
@@ -109,16 +112,24 @@ class Game(object):
         #begin
         games.screen.mainloop()
 
-    def end(winner):
+    def end(self, winner):
         #0=computer
         #1=player 1
         #2=player 2
         if winner == 0:
-            name = "computer"
+            name = "Computer"
         elif winner == 1:
             name = "Player 1"
         elif winner == 2:
             name = "Player 2"
+
+        win_message = games.Text(value = name + " wins!!!",
+                                 size = 50,
+                                 color = color.orange,
+                                 x=games.screen.width /2,
+                                 y = games.screen.height /2,
+                                 is_collideable=False)
+        games.screen.add(win_message)
         
         
 
