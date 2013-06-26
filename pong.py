@@ -17,9 +17,11 @@ class Ball(Thing):
     image = games.load_image("ball.png")
     SPEED = 4#speed multiplier
 
+    acceleration = 0.3 #how quickly ball speed increases
+
     def __init__(self, game, x=games.screen.width/2, y=games.screen.height/2):
         """create the ball"""
-        side_speed=(random.randint(3,7)/10)#will be dx
+        side_speed=(random.randint(4,6)/10)#will be dx
         down_speed = 1 - side_speed#will be dy
         
         super(Ball, self).__init__(
@@ -41,6 +43,10 @@ class Ball(Thing):
         if self.overlapping_sprites:
             #change side-to-side direction after contacting a paddle
             self.dx= -self.dx
+
+            #increase speed
+            self.dx += Ball.acceleration
+            self.dy += Ball.acceleration
 
         if self.right > games.screen.width:
             self.game.end(0)
@@ -102,7 +108,7 @@ class Computer(Paddle):
 
         ball_x = self.game.ball.x#side to side
 
-        if ball_x < games.screen.width / 2:#ball is on computer's half
+        if ball_x < games.screen.width / 2 and ball_x > 0:#ball is on computer's half
             if ball_y > self.y:
                 self.move_down()
             elif ball_y < self.y:
