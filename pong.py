@@ -15,15 +15,18 @@ class Thing(games.Sprite):
 
 class Ball(Thing):
     image = games.load_image("ball.png")
-    SPEED = 5#speed multiplier
+    SPEED = 8#speed multiplier
 
     def __init__(self, game, x=games.screen.width/2, y=games.screen.height/2):
         """create the ball"""
+        side_speed=(random.randint(3,7)/10)#will be dx
+        down_speed = 1 - side_speed#will be dy
+        
         super(Ball, self).__init__(
             image = Ball.image,
             x=x, y=y,
-            dx = random.random() * Ball.SPEED,
-            dy=random.random() * Ball.SPEED)
+            dx = side_speed * Ball.SPEED,
+            dy = down_speed * Ball.SPEED)
         self.game = game
 
     def update(self):
@@ -80,8 +83,6 @@ class Player(Paddle):
             self.move_up()
         if games.keyboard.is_pressed(games.K_DOWN):
             self.move_down()
-    
-
     
     
 
