@@ -15,7 +15,7 @@ class Thing(games.Sprite):
 
 class Ball(Thing):
     image = games.load_image("ball.png")
-    SPEED = 8#speed multiplier
+    SPEED = 4#speed multiplier
 
     def __init__(self, game, x=games.screen.width/2, y=games.screen.height/2):
         """create the ball"""
@@ -84,6 +84,29 @@ class Player(Paddle):
         if games.keyboard.is_pressed(games.K_DOWN):
             self.move_down()
     
+
+class Computer(Paddle):
+    """computer player"""
+    image = games.load_image("computer.png")
+
+    def __init__ (self, game, x=20):
+        """create computer paddle"""
+        super(Computer, self).__init__(image = Computer.image,
+                                       x=x, y=games.screen.height / 2)
+        self.game = game
+
+    def update(self):
+        super(Computer, self).update()
+        
+        ball_y = self.game.ball.y#up and down
+
+        ball_x = self.game.ball.x#side to side
+
+        if ball_x < games.screen.width / 2:#ball is on computer's half
+            if ball_y > self.y:
+                self.move_down()
+            elif ball_y < self.y:
+                self.move_up()
     
 
 
@@ -95,6 +118,10 @@ class Game(object):
         #create the player's paddle
         self.player1 = Player(game = self,x=games.screen.width - 20)
         games.screen.add(self.player1)
+
+        #create the computer paddle
+        self.cpu = Computer(game = self)
+        games.screen.add(self.cpu)
 
         #create the ball
         self.ball = Ball(game=self)
