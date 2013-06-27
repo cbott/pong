@@ -130,6 +130,20 @@ class Computer(Paddle):
 class Button(games.Sprite):
     """a pressable button"""
 
+    #game, x, y, img1, img2, click function, value given to click function
+    def __init__(self, game, x, y,
+                 unpressed_img, pressed_img, function, value):
+        super(Button, self).__init__(image = unpressed_img, x=x, y=y)
+        
+        self.game = game
+        self.unpressed_img = unpressed_img
+        self.pressed_img = pressed_img
+        #function to run when clicked
+        self.function = function
+
+        #value to pass to the function
+        self.value = value
+        
     def update(self):
         mouse_x = games.mouse.x
         mouse_y = games.mouse.y
@@ -143,37 +157,9 @@ class Button(games.Sprite):
         else:
             self.image = self.unpressed_img
 
-class K_Board_Button(Button):
-    """button clicked to use keyboard controls"""
-    unpressed_img = games.load_image("k_bttn_unpressed.png")
-    pressed_img = games.load_image("k_bttn_pressed.png")
-        
-    def __init__(self, game, x=0.25 * games.screen.width, y=games.screen.height/2):
-        super(K_Board_Button, self).__init__(image = K_Board_Button.unpressed_img,
-                                             x=x, y=y)
-        self.game = game
-
-    def update(self):
-        super(K_Board_Button, self).update()
-
     def click(self):
-        self.game.start("kb")
-
-class Mouse_Button(Button):
-    """button clicked to use mouse controls"""
-    unpressed_img = games.load_image("m_bttn_unpressed.png")
-    pressed_img = games.load_image("m_bttn_pressed.png")
-        
-    def __init__(self, game, x=0.75 * games.screen.width, y=games.screen.height/2):
-        super(Mouse_Button, self).__init__(image = Mouse_Button.unpressed_img,
-                                             x=x, y=y)
-        self.game = game
-
-    def update(self):
-        super(Mouse_Button, self).update()
-
-    def click(self):
-        self.game.start("m")    
+        self.function(self.value)
+    
 
 
 class Game(object):
@@ -182,10 +168,18 @@ class Game(object):
     def __init__(self):
         """initialize game object"""
         #get control type
-        self.k_button = K_Board_Button(game = self)
+        self.k_button = Button(game = self, x=0.25 * games.screen.width,
+                               y=games.screen.height/2,
+                               unpressed_img = games.load_image("k_bttn_unpressed.png"),
+                               pressed_img = games.load_image("k_bttn_pressed.png"),
+                               function = self.start, value = "kb")
         games.screen.add(self.k_button)
 
-        self.m_button = Mouse_Button(game = self)
+        self.m_button = Button(game = self, x=0.75 * games.screen.width,
+                                     y=games.screen.height/2,
+                                     unpressed_img = games.load_image("m_bttn_unpressed.png"),
+                                     pressed_img = games.load_image("m_bttn_pressed.png"),
+                                     function=self.start, value = "m")
         games.screen.add(self.m_button)
 
         #background music
