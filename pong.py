@@ -188,6 +188,15 @@ class Game(object):
         self.m_button = Mouse_Button(game = self)
         games.screen.add(self.m_button)
 
+        #background music
+        games.music.load("theme_music.mid")
+        games.music.play(-1)
+
+        #set background image
+        background_image=games.load_image("background.png")
+        games.screen.background = background_image
+
+        #begin
         games.screen.mainloop()
 
     def start(self, control_type):
@@ -217,17 +226,6 @@ class Game(object):
         self.ball = Ball(game=self)
         games.screen.add(self.ball)
 
-        
-        #background music
-        games.music.load("theme_music.mid")
-        games.music.play(-1)
-
-        #set background image
-        background_image=games.load_image("background.png")
-        games.screen.background = background_image
-
-        #begin
-        games.screen.event_grab = False
         
 
 
