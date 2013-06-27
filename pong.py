@@ -132,7 +132,7 @@ class Button(games.Sprite):
 
     #game, x, y, img1, img2, click function, value given to click function
     def __init__(self, game, x, y,
-                 unpressed_img, pressed_img, function, value):
+                 unpressed_img, pressed_img, function, value=None):
         super(Button, self).__init__(image = unpressed_img, x=x, y=y)
         
         self.game = game
@@ -158,7 +158,10 @@ class Button(games.Sprite):
             self.image = self.unpressed_img
 
     def click(self):
-        self.function(self.value)
+        if self.value:
+            self.function(self.value)
+        else:
+            self.function()
     
 
 
@@ -234,15 +237,40 @@ class Game(object):
         elif winner == 2:
             name = "Player 2"
 
-        win_message = games.Text(value = name + " wins!!!",
+        self.win_message = games.Text(value = name + " wins!!!",
                                  size = 50,
                                  color = color.orange,
                                  x=games.screen.width /2,
-                                 y = games.screen.height /2,
+                                 top = 10,
                                  is_collideable=False)
-        games.screen.add(win_message)
+        games.screen.add(self.win_message)
+
+        #remove the ball
+        self.ball.destroy()
+
+        #give player restart and quit options
+        self.again_button = Button(game = self, x=0.25 * games.screen.width,
+                              y=games.screen.height / 2,
+                              unpressed_img = games.load_image("again.png"),
+                              pressed_img = games.load_image("again2.png"),
+                              function = self.replay)
+        self.quit_button = Button(game = self, x = 0.75 * games.screen.width,
+                             y = games.screen.height / 2,
+                             unpressed_img = games.load_image("quit.png"),
+                             pressed_img = games.load_image("quit2.png"),
+                             function = self.leave)
+
+        games.screen.add(self.again_button)
+        games.screen.add(self.quit_button)
+
+    def replay(self):
+        """restart the game"""
+        games.screen.clear()#remove all sprites from screen
+        self.play()
         
-        
+    def leave(self):
+        """exit the game"""
+        games.screen.quit()
 
 def main():
     pong=Game()
