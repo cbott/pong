@@ -5,17 +5,38 @@ import random
 
 games.init(screen_width = 850, screen_height = 550, fps=45)
 
+
+#################
+#Base Classes####
+#################
 class Thing(games.Sprite):
     """parent class for ball and paddles"""
     def update(self):
         if self.top<0:
             self.top=0
         if self.bottom>games.screen.height:
-            self.bottom=games.screen.height       
+            self.bottom=games.screen.height
 
+    
+class Paddle(Thing):
+    """player or computer paddle"""
+    SPEED=3#how fast paddle moves up and down
+    
+    def move_up(self):
+        self.y -= Paddle.SPEED
+
+    def move_down(self):
+        self.y += Paddle.SPEED
+        
+
+##############
+#Ball#########
+##############
 class Ball(Thing):
     image = games.load_image("ball.png")
     SPEED = 4#speed multiplier
+
+    bounce_sound  = games.load_sound("bounce.WAV")
 
     acceleration = 0.5#how quickly ball speed increases
 
@@ -43,6 +64,9 @@ class Ball(Thing):
         if self.overlapping_sprites:
             #change side-to-side direction after contacting a paddle
             self.dx= -self.dx
+
+            #play bounce sound
+            Ball.bounce_sound.play()
 
             #increase speed
             self.dx += Ball.acceleration
@@ -76,19 +100,9 @@ class Ball(Thing):
             
         
         
-    
-
-class Paddle(Thing):
-    """player or computer paddle"""
-    SPEED=3#how fast paddle moves up and down
-    
-    def move_up(self):
-        self.y -= Paddle.SPEED
-
-    def move_down(self):
-        self.y += Paddle.SPEED
-        
-        
+###############
+#Player########
+###############            
 
 class Player(Paddle):
     """paddle for player 1"""
@@ -124,7 +138,9 @@ class Player(Paddle):
                     self.move_up()
         
     
-
+#############
+#CPU#########
+#############                    
 class Computer(Paddle):
     """computer player"""
     image = games.load_image("computer.png")
@@ -150,6 +166,9 @@ class Computer(Paddle):
                 self.move_up()
     
 
+################
+#Button Class###
+################                
 class Button(games.Sprite):
     """a pressable button"""
 
@@ -185,7 +204,10 @@ class Button(games.Sprite):
             self.function(self.value)
         else:
             self.function()
-    
+
+####################
+#The Pause Screen###
+####################            
 class PauseScreen (games.Sprite):
     """image to fade out the screen while paused"""
     image = games.load_image("fade.png")
@@ -196,6 +218,10 @@ class PauseScreen (games.Sprite):
     def remove(self):
         self.destroy()
 
+
+#######################
+#The Game##############
+#######################        
 class Game(object):
     """the game"""
 
@@ -323,6 +349,7 @@ class Game(object):
     def leave(self):
         """exit the game"""
         games.screen.quit()
+
 
 def main():
     pong=Game()
