@@ -48,11 +48,31 @@ class Ball(Thing):
             self.dx += Ball.acceleration
             self.dy += Ball.acceleration
 
-        if self.right > games.screen.width:
+        
+        #end game if ball is off screen
+        if self.left > games.screen.width:
             self.game.end(0)
 
-        elif self.left < 0:
+        elif self.right < 0:
             self.game.end(1)
+
+
+        #pause the game if not already paused
+        if games.keyboard.is_pressed(games.K_p) and self.game.is_paused == False:
+            self.game.pause()
+            #remember the speed
+            self.paused_dx = self.dx
+            self.paused_dy = self.dy
+            #set speed to 0
+            self.dx = 0
+            self.dy = 0
+
+        #resume if game is already paused
+        if games.keyboard.is_pressed(games.K_r) and self.game.is_paused:
+            self.game.resume()
+            #start the ball moving again
+            self.dx = self.paused_dx
+            self.dy = self.paused_dy
             
         
         
@@ -84,22 +104,24 @@ class Player(Paddle):
         """moove the paddle"""
 
         super(Player, self).update()
+        
+        if self.game.is_paused==False:
+        #game is not paused
+            #keyboard control
+            if control == "k":
+                if games.keyboard.is_pressed(games.K_UP):
+                    self.move_up()
+                if games.keyboard.is_pressed(games.K_DOWN):
+                    self.move_down()
+        
 
-        #keyboard control
-        if control == "k":
-            if games.keyboard.is_pressed(games.K_UP):
-                self.move_up()
-            if games.keyboard.is_pressed(games.K_DOWN):
-                self.move_down()
-    
 
-
-        #mouse control
-        else:
-            if games.mouse.y > self.y:
-                self.move_down()
-            elif games.mouse.y < self.y:
-                self.move_up()
+            #mouse control
+            else:
+                if games.mouse.y > self.y:
+                    self.move_down()
+                elif games.mouse.y < self.y:
+                    self.move_up()
         
     
 
@@ -120,7 +142,8 @@ class Computer(Paddle):
 
         ball_x = self.game.ball.x#side to side
 
-        if ball_x < games.screen.width / 2 and ball_x > 0:#ball is on computer's half
+        if ball_x < games.screen.width / 2 and ball_x > 0 and self.game.is_paused==False:
+            #ball is on computer's half and game is not paused
             if ball_y > self.y:
                 self.move_down()
             elif ball_y < self.y:
@@ -163,7 +186,15 @@ class Button(games.Sprite):
         else:
             self.function()
     
-
+class PauseScreen (games.Sprite):
+    """image to fade out the screen while paused"""
+    image = games.load_image("fade.png")
+    def __init__ (self):
+        super(PauseScreen, self).__init__(image = PauseScreen.image,
+                                          top=0, left = 0,
+                                          is_collideable = False)
+    def remove(self):
+        self.destroy()
 
 class Game(object):
     """the game"""
@@ -192,6 +223,9 @@ class Game(object):
         #set background image
         background_image=games.load_image("background.png")
         games.screen.background = background_image
+
+        #game is not paused
+        self.is_paused = False
 
         #begin
         games.screen.mainloop()
@@ -224,6 +258,24 @@ class Game(object):
         games.screen.add(self.ball)
 
         
+    def pause(self):
+        self.is_paused = True
+        
+        #stop the music
+        games.music.stop()
+
+        #add in fadeout screen
+        self.pause_screen = PauseScreen()
+        games.screen.add(self.pause_screen)
+
+
+    def resume(self):
+        #restart the music
+        games.music.play(-1)
+
+        #remove fadeout screen
+        self.pause_screen.remove()
+        self.is_paused = False
 
 
     def end(self, winner):
