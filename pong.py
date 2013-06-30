@@ -61,16 +61,23 @@ class Ball(Thing):
             #hit bottom, reverse y direction
             self.dy = -self.dy
 
-        if self.overlapping_sprites:
-            #change side-to-side direction after contacting a paddle
-            self.dx= -self.dx
+        if self.overlapping_sprites:#ball has contacted a paddle
 
             #play bounce sound
             Ball.bounce_sound.play()
 
             #increase speed
-            self.dx += Ball.acceleration
-            self.dy += Ball.acceleration
+            if self.dx > 0:
+                self.dx += Ball.acceleration
+            elif self.dx < 0:
+                self.dx -= Ball.acceleration
+            if self.dy > 0:
+                self.dy += Ball.acceleration
+            elif self.dy < 0:
+                self.dy -= Ball.acceleration
+            
+            #change side-to-side direction after contacting a paddle
+            self.dx= -self.dx
 
         
         #end game if ball is off screen
@@ -219,6 +226,9 @@ class PauseScreen (games.Sprite):
         self.destroy()
 
 
+#################################
+#"press space to begin" message##
+#################################        
 class StartMessage(games.Text):
     def __init__(self, game):
         super(StartMessage, self).__init__(value = "Press Space To Start",
