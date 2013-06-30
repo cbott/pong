@@ -219,6 +219,21 @@ class PauseScreen (games.Sprite):
         self.destroy()
 
 
+class StartMessage(games.Text):
+    def __init__(self, game):
+        super(StartMessage, self).__init__(value = "Press Space To Start",
+                                           size = 70,
+                                           x = games.screen.width / 2,
+                                           y = games.screen.height / 2,
+                                           color = color.green,
+                                           is_collideable = False)
+        self.game = game
+
+
+    def update(self):
+        if games.keyboard.is_pressed(games.K_SPACE):
+            self.game.begin()
+
 #######################
 #The Game##############
 #######################        
@@ -270,7 +285,16 @@ class Game(object):
         self.play()
 
     def play(self):
-        """play the game"""
+        """wait for the player to be ready, then begin"""
+        self.start_text = StartMessage(game = self)
+        games.screen.add(self.start_text)
+
+
+    def begin(self):
+        """start the game after the player is ready"""
+        #remove the start text
+        self.start_text.destroy()
+        
         #create the player's paddle
         self.player1 = Player(game = self,x=games.screen.width - 20)
         games.screen.add(self.player1)
@@ -282,7 +306,7 @@ class Game(object):
         #create the ball
         self.ball = Ball(game=self)
         games.screen.add(self.ball)
-
+        
         
     def pause(self):
         self.is_paused = True
