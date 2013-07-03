@@ -38,7 +38,7 @@ class Ball(Thing):
 
     bounce_sound  = games.load_sound("bounce.WAV")
 
-    acceleration = 0.5#how quickly ball speed increases
+    acceleration = 0.15#how quickly ball speed increases
 
     def __init__(self, game, x=games.screen.width/2, y=games.screen.height/2):
         """create the ball"""
@@ -66,18 +66,27 @@ class Ball(Thing):
             #play bounce sound
             Ball.bounce_sound.play()
 
-            #increase speed
+            #increase side-to-side speed
             if self.dx > 0:
                 self.dx += Ball.acceleration
             elif self.dx < 0:
                 self.dx -= Ball.acceleration
-            if self.dy > 0:
-                self.dy += Ball.acceleration
-            elif self.dy < 0:
-                self.dy -= Ball.acceleration
-            
             #change side-to-side direction after contacting a paddle
             self.dx= -self.dx
+
+            #change up/down speed based on where ball hit the paddle
+            for paddle in self.overlapping_sprites:
+                paddle_y = paddle.y
+                #paddle is 75 px high
+            ball_y = self.y
+
+            if abs(ball_y - paddle_y) > 10:#ball didnt hit midddle 20 of paddle
+                dist = ball_y - paddle_y
+                change = dist / 30
+                #change dy based on how far ball was from center of paddle
+                self.dy += change
+            
+
 
         
         #end game if ball is off screen
