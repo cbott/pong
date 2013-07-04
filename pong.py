@@ -191,7 +191,8 @@ class Button(games.Sprite):
     #game, x, y, img1, img2, click function, value given to click function
     def __init__(self, game, x, y,
                  unpressed_img, pressed_img, function, value=None):
-        super(Button, self).__init__(image = unpressed_img, x=x, y=y)
+        super(Button, self).__init__(image = unpressed_img, x=x, y=y,
+                                     is_collideable = False)
         
         self.game = game
         self.unpressed_img = unpressed_img
@@ -220,6 +221,75 @@ class Button(games.Sprite):
             self.function(self.value)
         else:
             self.function()
+
+class ToggleButton(games.Sprite):
+    """button with 2 states that change when clicked"""
+    #game, x, y, img1, img2, click function 1, function 2, value 1, value 2
+    def __init__(self, game, x, y, unpressed_img,
+                pressed_img, function1, function2, value1=None, value2=None):
+        
+        super(ToggleButton, self).__init__(image = unpressed_img, x=x, y=y,
+                                             is_collideable = False)
+        self.game = game
+        self.unpressed_img = unpressed_img
+        self.pressed_img = pressed_img
+        #functions to run when clicked
+        self.function1 = function1
+        self.function2 = function2
+
+        #value to pass to the function
+        self.value1 = value1
+        self.value2 = value2
+
+    def update(self):
+        mouse_x = games.mouse.x
+        mouse_y = games.mouse.y
+
+        if mouse_x < self.right and mouse_x > self.left and mouse_y < self.bottom and mouse_y > self.top:
+            #mouse is hovering over button
+
+            if games.mouse.is_pressed(0):
+                #button has been left-clicked
+                self.click()
+
+    def click(self):
+        if self.image == self.unpressed_img:
+            #button is in state 1, set img to state 2
+            self.image = self.pressed_img
+            #run function coorelating to 2nd img
+            if self.value2:
+                self.function2(self.value2)
+            else:
+                self.function2()
+                
+        elif self.image == self.pressed_img:
+            #button is in state 2, set img to state 1
+            self.image = self.unpressed_img
+            #run function coorelating to 1st img
+            if self.value1:
+                self.function1(self.value1)
+            else:
+                self.function1()
+
+#doesn't work
+                
+##class MouseClick(games.Sprite):
+##    """class to allow the reading of a single left click from the mouse"""
+##    def __init__(self):
+##        super(MouseClick, self).__init__(image = games.load_image("pixel.png"),
+##                                         x=1, y=1, is_collideable = False)
+##        self.click_state = games.mouse.is_pressed(0)
+##
+##    def update(self):
+##        self.old_click_state = self.click_state
+##        self.click_state = games.mouse.is_pressed(0)
+##
+##    def get_single_click(self):
+##        if self.click_state and not self.old_click_state:
+##            return 1
+##        else:
+##            return 0
+        
 
 ####################
 #The Pause Screen###
@@ -276,9 +346,18 @@ class Game(object):
                                      function=self.start, value = "m")
         games.screen.add(self.m_button)
 
+        #add the toggle music button
+        self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
+                                                unpressed_img = games.load_image("music.png"),
+                                                pressed_img = games.load_image("nomusic.png"),
+                                                function1 = self.play_music,
+                                                function2 = self.stop_music)
+        games.screen.add(self.toggle_music_button)
+
+        
         #background music
         games.music.load("theme_music.mid")
-        games.music.play(-1)
+        self.play_music()
 
         #set background image
         background_image=games.load_image("background.png")
@@ -326,12 +405,17 @@ class Game(object):
         self.ball = Ball(game=self)
         games.screen.add(self.ball)
         
+    def play_music(self):
+        games.music.play(-1)
+        
+    def stop_music(self):
+        games.music.stop()
         
     def pause(self):
         self.is_paused = True
         
         #stop the music
-        games.music.stop()
+        self.stop_music()
 
         #add in fadeout screen
         self.pause_screen = PauseScreen()
@@ -340,7 +424,7 @@ class Game(object):
 
     def resume(self):
         #restart the music
-        games.music.play(-1)
+        self.play_music()
 
         #remove fadeout screen
         self.pause_screen.remove()
