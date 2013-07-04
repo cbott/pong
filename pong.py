@@ -248,7 +248,9 @@ class ToggleButton(games.Sprite):
         if mouse_x < self.right and mouse_x > self.left and mouse_y < self.bottom and mouse_y > self.top:
             #mouse is hovering over button
 
-            if games.mouse.is_pressed(0):
+            #get single click state
+            self.single_click = self.game.left_click.get_single_click()
+            if self.single_click:
                 #button has been left-clicked
                 self.click()
 
@@ -271,24 +273,23 @@ class ToggleButton(games.Sprite):
             else:
                 self.function1()
 
-#doesn't work
                 
-##class MouseClick(games.Sprite):
-##    """class to allow the reading of a single left click from the mouse"""
-##    def __init__(self):
-##        super(MouseClick, self).__init__(image = games.load_image("pixel.png"),
-##                                         x=1, y=1, is_collideable = False)
-##        self.click_state = games.mouse.is_pressed(0)
-##
-##    def update(self):
-##        self.old_click_state = self.click_state
-##        self.click_state = games.mouse.is_pressed(0)
-##
-##    def get_single_click(self):
-##        if self.click_state and not self.old_click_state:
-##            return 1
-##        else:
-##            return 0
+class MouseClick(games.Sprite):
+    """class to allow the reading of a single left click from the mouse"""
+    def __init__(self):
+        super(MouseClick, self).__init__(image = games.load_image("pixel.png"),
+                                         x=1, y=1, is_collideable = False)
+        self.click_state = games.mouse.is_pressed(0)
+
+    def update(self):
+        self.old_click_state = self.click_state
+        self.click_state = games.mouse.is_pressed(0)
+
+    def get_single_click(self):
+        if self.click_state and not self.old_click_state:
+            return 1
+        else:
+            return 0
         
 
 ####################
@@ -354,6 +355,9 @@ class Game(object):
                                                 function2 = self.stop_music)
         games.screen.add(self.toggle_music_button)
 
+        #add the single click class
+        self.left_click = MouseClick()
+        games.screen.add(self.left_click)
         
         #background music
         games.music.load("theme_music.mid")
