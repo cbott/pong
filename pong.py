@@ -257,22 +257,29 @@ class ToggleButton(games.Sprite):
     def click(self):
         if self.image == self.unpressed_img:
             #button is in state 1, set img to state 2
-            self.image = self.pressed_img
-            #run function coorelating to 2nd img
-            if self.value2:
-                self.function2(self.value2)
-            else:
-                self.function2()
+            self.set_2()
                 
         elif self.image == self.pressed_img:
             #button is in state 2, set img to state 1
-            self.image = self.unpressed_img
-            #run function coorelating to 1st img
-            if self.value1:
-                self.function1(self.value1)
-            else:
-                self.function1()
+            self.set_1()
 
+    def set_1(self):
+        #set button to state 1
+        self.image = self.unpressed_img
+        #run function coorelating to 1st img
+        if self.value1:
+            self.function1(self.value1)
+        else:
+            self.function1()
+            
+    def set_2(self):
+        #change button to state 2
+        self.image = self.pressed_img
+        #run function coorelating to 2nd img
+        if self.value2:
+            self.function2(self.value2)
+        else:
+            self.function2()
                 
 class MouseClick(games.Sprite):
     """class to allow the reading of a single left click from the mouse"""
@@ -388,6 +395,17 @@ class Game(object):
 
     def play(self):
         """wait for the player to be ready, then begin"""
+        #put in the music toggle button
+        self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
+                                                unpressed_img = games.load_image("music.png"),
+                                                pressed_img = games.load_image("nomusic.png"),
+                                                function1 = self.play_music,
+                                                function2 = self.stop_music)
+        games.screen.add(self.toggle_music_button)
+        #add the single click class
+        self.left_click = MouseClick()
+        games.screen.add(self.left_click)
+        
         self.start_text = StartMessage(game = self)
         games.screen.add(self.start_text)
 
@@ -419,7 +437,7 @@ class Game(object):
         self.is_paused = True
         
         #stop the music
-        self.stop_music()
+        self.toggle_music_button.set_2()
 
         #add in fadeout screen
         self.pause_screen = PauseScreen()
@@ -428,7 +446,7 @@ class Game(object):
 
     def resume(self):
         #restart the music
-        self.play_music()
+        self.toggle_music_button.set_1()
 
         #remove fadeout screen
         self.pause_screen.remove()
