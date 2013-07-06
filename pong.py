@@ -247,8 +247,8 @@ class ToggleButton(games.Sprite):
         mouse_x = games.mouse.x
         mouse_y = games.mouse.y
 
-        if mouse_x < self.right and mouse_x > self.left and mouse_y < self.bottom and mouse_y > self.top:
-            #mouse is hovering over button
+        if (mouse_x < self.right and mouse_x > self.left and mouse_y < self.bottom and mouse_y > self.top) or games.keyboard.is_pressed(games.K_t):
+            #mouse is hovering over button or "t" is pressed
 
             #get single click state
             self.single_click = self.game.left_click.get_single_click()
@@ -296,7 +296,7 @@ class MouseClick(games.Sprite):
 
     def update(self):
         self.old_click_state = self.click_state
-        self.click_state = games.mouse.is_pressed(0)
+        self.click_state = games.mouse.is_pressed(0) or games.keyboard.is_pressed(games.K_t)
 
     def get_single_click(self):
         if self.click_state and not self.old_click_state:
