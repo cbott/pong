@@ -63,8 +63,9 @@ class Ball(Thing):
 
         if self.overlapping_sprites:#ball has contacted a paddle
 
-            #play bounce sound
-            Ball.bounce_sound.play()
+            #play bounce sound if sound is not off
+            if self.game.sound_off == False:
+                Ball.bounce_sound.play()
 
             #increase side-to-side speed
             if self.dx > 0:
@@ -383,6 +384,9 @@ class Game(object):
         #game is not paused
         self.is_paused = False
 
+        #sound is not off
+        self.sound_off = False
+
         #begin
         games.screen.mainloop()
 
@@ -447,9 +451,11 @@ class Game(object):
         
     def play_music(self):
         games.music.play(-1)
+        self.sound_off = False#sound is not off
         
     def stop_music(self):
         games.music.stop()
+        self.sound_off = True#turn sound off
         
     def pause(self):
         self.is_paused = True
