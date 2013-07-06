@@ -91,10 +91,17 @@ class Ball(Thing):
         
         #end game if ball is off screen
         if self.left > games.screen.width:
-            self.game.end(0)
+            #ball went off on right side
+            if players == 1:
+                #1 player game, CPU  wins
+                self.game.end(0)
+            else:
+                #player 2 wins
+                self.game.end(2)
 
         elif self.right < 0:
-            self.game.end(1)
+            #ball went off on left side
+            self.game.end(1)  #P1 wins        
 
 
         #pause the game if not already paused
@@ -122,36 +129,28 @@ class Ball(Thing):
 
 class Player(Paddle):
     """paddle for player 1"""
-    image = games.load_image("player1.png")
 
-    def __init__(self, game, x):
+    def __init__(self, game, x, img, up_key, down_key):
         """create the player's paddle"""
-        super(Player, self).__init__(image=Player.image, x=x,
+        super(Player, self).__init__(image=img, x=x,
                                      y=games.screen.height / 2)
         self.game=game
+        self.up_key = up_key
+        self.down_key = down_key
 
     def update(self):
-        """moove the paddle"""
+        """move the paddle"""
 
         super(Player, self).update()
         
         if self.game.is_paused==False:
         #game is not paused
             #keyboard control
-            if control == "k":
-                if games.keyboard.is_pressed(games.K_UP):
-                    self.move_up()
-                if games.keyboard.is_pressed(games.K_DOWN):
-                    self.move_down()
-        
+            if games.keyboard.is_pressed(self.up_key):
+                self.move_up()
+            if games.keyboard.is_pressed(self.down_key):
+                self.move_down()
 
-
-            #mouse control
-            else:
-                if games.mouse.y > self.y:
-                    self.move_down()
-                elif games.mouse.y < self.y:
-                    self.move_up()
         
     
 #############
@@ -339,20 +338,20 @@ class Game(object):
 
     def __init__(self):
         """initialize game object"""
-        #get control type
-        self.k_button = Button(game = self, x=0.25 * games.screen.width,
+        #get the number of players
+        self.p1_button = Button(game = self, x=0.25 * games.screen.width,
                                y=games.screen.height/2,
-                               unpressed_img = games.load_image("k_bttn_unpressed.png"),
-                               pressed_img = games.load_image("k_bttn_pressed.png"),
-                               function = self.start, value = "kb")
-        games.screen.add(self.k_button)
+                               unpressed_img = games.load_image("1player.png"),
+                               pressed_img = games.load_image("1player2.png"),
+                               function = self.start, value = 1)
+        games.screen.add(self.p1_button)
 
-        self.m_button = Button(game = self, x=0.75 * games.screen.width,
+        self.p2_button = Button(game = self, x=0.75 * games.screen.width,
                                      y=games.screen.height/2,
-                                     unpressed_img = games.load_image("m_bttn_unpressed.png"),
-                                     pressed_img = games.load_image("m_bttn_pressed.png"),
-                                     function=self.start, value = "m")
-        games.screen.add(self.m_button)
+                                     unpressed_img = games.load_image("2player.png"),
+                                     pressed_img = games.load_image("2player2.png"),
+                                     function=self.start, value = 2)
+        games.screen.add(self.p2_button)
 
         #add the toggle music button
         self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
@@ -380,16 +379,16 @@ class Game(object):
         #begin
         games.screen.mainloop()
 
-    def start(self, control_type):
-        global control
+    def start(self, num_players):
+        global players
         
-        if control_type == "kb":
-            control = "k"
+        if num_players == 1:
+            players = 1
         else:
-            control = "m"
+            players = 2
             
-        self.k_button.destroy()
-        self.m_button.destroy()
+        self.p1_button.destroy()
+        self.p2_button.destroy()
 
         self.play()
 
@@ -416,13 +415,25 @@ class Game(object):
         self.start_text.destroy()
         
         #create the player's paddle
-        self.player1 = Player(game = self,x=games.screen.width - 20)
+        self.player1 = Player(game = self,x=games.screen.width - 20,
+                              img = games.load_image("player1.png"),
+                              up_key=games.K_UP,
+                              down_key=games.K_DOWN)
         games.screen.add(self.player1)
 
-        #create the computer paddle
-        self.cpu = Computer(game = self)
-        games.screen.add(self.cpu)
-
+        if players == 1:#1 player game:
+            #create the computer paddle
+            self.cpu = Computer(game = self)
+            games.screen.add(self.cpu)
+            
+        elif players == 2:#2 player game
+            #create the P2 paddle
+            self.player2 = Player(game = self, x=20,
+                                  img = games.load_image("player2.png"),
+                                  up_key = games.K_w,
+                                  down_key = games.K_s)
+            games.screen.add(self.player2)
+            
         #create the ball
         self.ball = Ball(game=self)
         games.screen.add(self.ball)
