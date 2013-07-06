@@ -221,6 +221,9 @@ class Button(games.Sprite):
         else:
             self.function()
 
+##########################
+#Toggle Button############
+##########################            
 class ToggleButton(games.Sprite):
     """button with 2 states that change when clicked"""
     #game, x, y, img1, img2, click function 1, function 2, value 1, value 2
@@ -279,7 +282,11 @@ class ToggleButton(games.Sprite):
             self.function2(self.value2)
         else:
             self.function2()
-                
+
+
+##########################
+#"single click" class#####
+##########################            
 class MouseClick(games.Sprite):
     """class to allow the reading of a single left click from the mouse"""
     def __init__(self):
