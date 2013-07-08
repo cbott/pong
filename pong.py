@@ -44,6 +44,9 @@ class Ball(Thing):
         """create the ball"""
         side_speed=(random.randint(4,6)/10)#will be dx
         down_speed = 1 - side_speed#will be dy
+
+        side_speed *= random.choice([1,-1])#change the direction randomly
+        down_speed *= random.choice([1,-1])
         
         super(Ball, self).__init__(
             image = Ball.image,
