@@ -202,15 +202,26 @@ class Button(games.Sprite):
 
         #value to pass to the function
         self.value = value
+
+        self.old_click_state = 1
+        self.click_state = 1
         
     def update(self):
+        #get only a single click:
+        self.old_click_state = self.click_state
+        self.click_state = games.mouse.is_pressed(0)#left click
+        
+        self.pressed = 0
+        if self.click_state and not self.old_click_state:
+            self.pressed = 1
+        
         mouse_x = games.mouse.x
         mouse_y = games.mouse.y
 
         if mouse_x < self.right and mouse_x > self.left and mouse_y < self.bottom and mouse_y > self.top:
             #mouse is hovering over button
             self.image = self.pressed_img
-            if games.mouse.is_pressed(0):
+            if self.pressed:
                 #button has been left-clicked
                 self.click()
         else:
@@ -372,6 +383,12 @@ class Game(object):
         #add the single click class
         self.left_click = MouseClick()
         games.screen.add(self.left_click)
+
+        #game is not paused
+        self.is_paused = False
+
+        #sound is not off
+        self.sound_off = False
         
         #background music
         games.music.load("theme_music.mid")
@@ -381,14 +398,45 @@ class Game(object):
         background_image=games.load_image("background.png")
         games.screen.background = background_image
 
+        #begin
+        games.screen.mainloop()
+
+
+    def init(self):
+        """__init__ to do upon restarting"""
+        #get the number of players
+        self.p1_button = Button(game = self, x=0.25 * games.screen.width,
+                               y=games.screen.height/2,
+                               unpressed_img = games.load_image("1player.png"),
+                               pressed_img = games.load_image("1player2.png"),
+                               function = self.start, value = 1)
+        games.screen.add(self.p1_button)
+
+        self.p2_button = Button(game = self, x=0.75 * games.screen.width,
+                                     y=games.screen.height/2,
+                                     unpressed_img = games.load_image("2player.png"),
+                                     pressed_img = games.load_image("2player2.png"),
+                                     function=self.start, value = 2)
+        games.screen.add(self.p2_button)
+
+        #add the toggle music button
+        self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
+                                                unpressed_img = games.load_image("music.png"),
+                                                pressed_img = games.load_image("nomusic.png"),
+                                                function1 = self.play_music,
+                                                function2 = self.stop_music)
+        games.screen.add(self.toggle_music_button)
+
+        #add the single click class
+        self.left_click = MouseClick()
+        games.screen.add(self.left_click)
+
         #game is not paused
         self.is_paused = False
 
         #sound is not off
         self.sound_off = False
-
-        #begin
-        games.screen.mainloop()
+        
 
     def start(self, num_players):
         global players
@@ -405,13 +453,13 @@ class Game(object):
 
     def play(self):
         """wait for the player to be ready, then begin"""
-        #put in the music toggle button
-        self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
-                                                unpressed_img = games.load_image("music.png"),
-                                                pressed_img = games.load_image("nomusic.png"),
-                                                function1 = self.play_music,
-                                                function2 = self.stop_music)
-        games.screen.add(self.toggle_music_button)
+##        #put in the music toggle button
+##        self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
+##                                                unpressed_img = games.load_image("music.png"),
+##                                                pressed_img = games.load_image("nomusic.png"),
+##                                                function1 = self.play_music,
+##                                                function2 = self.stop_music)
+##        games.screen.add(self.toggle_music_button)
         #add the single click class
         self.left_click = MouseClick()
         games.screen.add(self.left_click)
@@ -521,12 +569,14 @@ class Game(object):
         
     def leave(self):
         """exit the game"""
-        games.screen.quit()
+        #games.screen.quit()
+        games.screen.clear()#remove all sprites from screen
+        self.play_music()
+        self.init()
 
-
+    
 def main():
     pong=Game()
-    pong.play()
 
 #run the game
 main()
