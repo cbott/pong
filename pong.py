@@ -321,13 +321,12 @@ class MouseClick(games.Sprite):
         
 
 ####################
-#The Pause Screen###
+#Cover Screen#######
 ####################            
-class PauseScreen (games.Sprite):
-    """image to fade out the screen while paused"""
-    image = games.load_image("fade.png")
-    def __init__ (self):
-        super(PauseScreen, self).__init__(image = PauseScreen.image,
+class CoverScreen (games.Sprite):
+    """image go to for pause/help""" 
+    def __init__ (self, img):
+        super(CoverScreen, self).__init__(image = img,
                                           top=0, left = 0,
                                           is_collideable = False)
     def remove(self):
@@ -360,38 +359,7 @@ class Game(object):
 
     def __init__(self):
         """initialize game object"""
-        #get the number of players
-        self.p1_button = Button(game = self, x=0.25 * games.screen.width,
-                               y=games.screen.height/2,
-                               unpressed_img = games.load_image("1player.png"),
-                               pressed_img = games.load_image("1player2.png"),
-                               function = self.start, value = 1)
-        games.screen.add(self.p1_button)
-
-        self.p2_button = Button(game = self, x=0.75 * games.screen.width,
-                                     y=games.screen.height/2,
-                                     unpressed_img = games.load_image("2player.png"),
-                                     pressed_img = games.load_image("2player2.png"),
-                                     function=self.start, value = 2)
-        games.screen.add(self.p2_button)
-
-        #add the toggle music button
-        self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
-                                                unpressed_img = games.load_image("music.png"),
-                                                pressed_img = games.load_image("nomusic.png"),
-                                                function1 = self.play_music,
-                                                function2 = self.stop_music)
-        games.screen.add(self.toggle_music_button)
-
-        #add the single click class
-        self.left_click = MouseClick()
-        games.screen.add(self.left_click)
-
-        #game is not paused
-        self.is_paused = False
-
-        #sound is not off
-        self.sound_off = False
+        self.init()
         
         #background music
         games.music.load("theme_music.mid")
@@ -422,6 +390,14 @@ class Game(object):
                                      function=self.start, value = 2)
         games.screen.add(self.p2_button)
 
+        #add the "help" button
+        self.help_button = Button(game = self, x=games.screen.width - 40,
+                                  y = 40,
+                                  unpressed_img = games.load_image("helpbutton.png"),
+                                  pressed_img = games.load_image("helpbutton2.png"),
+                                  function = self.show_help)
+        games.screen.add(self.help_button)
+
         #add the toggle music button
         self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
                                                 unpressed_img = games.load_image("music.png"),
@@ -451,6 +427,7 @@ class Game(object):
             
         self.p1_button.destroy()
         self.p2_button.destroy()
+        self.help_button.destroy()
 
         self.play()
 
@@ -515,7 +492,7 @@ class Game(object):
         self.toggle_music_button.set_2()
 
         #add in fadeout screen
-        self.pause_screen = PauseScreen()
+        self.pause_screen = CoverScreen(img= games.load_image("fade.png"))
         games.screen.add(self.pause_screen)
 
 
@@ -526,6 +503,25 @@ class Game(object):
         #remove fadeout screen
         self.pause_screen.remove()
         self.is_paused = False
+
+    def show_help(self):
+        #add the help screen
+        self.help_screen = CoverScreen(img = games.load_image("help.png"))
+        games.screen.add(self.help_screen)
+
+        #add the close help button
+        self.close_button = Button(game = self, x=750, y=520,
+                                   unpressed_img = games.load_image("close.png"),
+                                   pressed_img = games.load_image("close2.png"),
+                                   function = self.close_help)
+        games.screen.add(self.close_button)
+
+    def close_help(self):
+        #remove help screen
+        self.help_screen.remove()
+
+        #remove close button
+        self.close_button.destroy()            
 
 
     def end(self, winner):
