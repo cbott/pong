@@ -20,7 +20,7 @@ class Thing(games.Sprite):
     
 class Paddle(Thing):
     """player or computer paddle"""
-    SPEED=3#how fast paddle moves up and down
+    SPEED=4#how fast paddle moves up and down
     
     def move_up(self):
         self.y -= Paddle.SPEED
@@ -34,11 +34,11 @@ class Paddle(Thing):
 ##############
 class Ball(Thing):
     image = games.load_image("ball.png")
-    SPEED = 4#speed multiplier
+    SPEED = 6#speed multiplier
 
     bounce_sound  = games.load_sound("bounce.WAV")
 
-    acceleration = 0.15#how quickly ball speed increases
+    acceleration = 0.2#how quickly ball speed increases
 
     def __init__(self, game, x=games.screen.width/2, y=games.screen.height/2):
         """create the ball"""
@@ -564,6 +564,13 @@ class Game(object):
     def replay(self):
         """restart the game"""
         games.screen.clear()#remove all sprites from screen
+        #add the toggle music button
+        self.toggle_music_button = ToggleButton(game=self, x=15, y=20,
+                                                unpressed_img = games.load_image("music.png"),
+                                                pressed_img = games.load_image("nomusic.png"),
+                                                function1 = self.play_music,
+                                                function2 = self.stop_music)
+        games.screen.add(self.toggle_music_button)
         self.play()
         
     def leave(self):
